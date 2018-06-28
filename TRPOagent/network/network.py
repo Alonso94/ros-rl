@@ -18,8 +18,8 @@ class Network:
         nn = InputLayer((None,) + observation_shape, input_var=observations)
         nn1 = DenseLayer(nn, 128, W=GlorotNormal())
         nn2 = DenseLayer(nn1, 64, W=GlorotNormal())
-        m = DenseLayer(nn2, n_actions, nonlinearity=linear)
-        logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear)
+        m = DenseLayer(nn2, n_actions, nonlinearity=linear, W=GlorotNormal())
+        logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear, W=GlorotNormal())
 
         #-----------------------------------------------
         mean = get_output([m])[0]

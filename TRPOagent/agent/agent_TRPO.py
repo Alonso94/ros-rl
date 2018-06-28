@@ -9,7 +9,7 @@ class TRPOAgent:
     n_actions = 4  # type: int
     observation_shape = (12,)  # type: tuple
 
-    def __init__(self, env: object) -> object:
+    def __init__(self, env):
         self.env = env
         self.init_network()
         self.n_actions = 4
@@ -68,7 +68,6 @@ class TRPOAgent:
         # Report current progress
         L_surr, kl, entropy = self.net.compute_losses(*inputs_batch)
         episode_rewards = np.array([path["rewards"].sum() for path in paths])
-
         stats = OrderedDict()
         numeptotal += len(episode_rewards)
         stats["Total number of episodes"] = numeptotal
@@ -105,7 +104,7 @@ class TRPOAgent:
                     break
             reward += r
             l += 1
-            print(l, ')', r, [obs[10], obs[11], obs[12]], a)
+            print(l, ')', r, [obs[-3], obs[-2], obs[-1]], a)
 
     def grasp(self, env):
         obs = synthetic_state(env, env.render(), env.aim)
@@ -139,7 +138,7 @@ class TRPOAgent:
                     break
             reward += r
             l += 1
-            print(l, ')', r, [obs[10], obs[11], obs[12]], a)
+            print(l, ')', r, [obs[-3], obs[-2], obs[-1]], a)
 
     def putdown(self, env):
         obs = synthetic_state(env, env.render(), env.aim)
@@ -156,4 +155,4 @@ class TRPOAgent:
                     break
             reward += r
             l += 1
-            print(l, ')', r, [obs[10], obs[11], obs[12]], a)
+            print(l, ')', r, [obs[-3], obs[-2], obs[-1]], a)

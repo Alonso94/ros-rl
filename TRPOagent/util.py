@@ -91,7 +91,7 @@ def rollout(env, agent, max_pathlength=2500, n_timesteps=50000):
                 reward += r
             rewards.append(reward)
             total_timesteps += 1
-            if done or total_timesteps == n_timesteps:
+            if done or total_timesteps%max_pathlength == 0: #== n_timesteps:
                 path = {"observations": np.array(observations),
                         "m": np.array(action_m),
                         "logstd": np.array(action_logstd),
@@ -150,17 +150,17 @@ def state1(aim, env):
     joint[3] = get_pose('gripper_1_link', env)
 
     # vectors
-    vec1 = np.zeros((3, 2))
-    vec2 = np.zeros((3, 2))
+    vec1 = np.zeros((3, 3))
+    vec2 = np.zeros((3, 3))
 
     for i in range(3):
         vec1[i] = joint[3] - joint[i]
         vec2[i] = aim1 - joint[i]
 
     #state = angle(norm(vec1), vec2) // 0.01 * 0.01
-    vec = tuple((vec1[0] - vec2[0]) // 0.01 * 0.01)
-    vec += tuple((vec1[1] - vec2[1]) // 0.01 * 0.01)
-    vec += tuple((vec1[2] - vec2[2]) // 0.01 * 0.01)
+    vec = tuple((vec1[0] - vec2[0])//0.01*0.01)
+    vec += ((vec1[1] - vec2[1])[0]//0.01*0.01, (vec1[1] - vec2[1])[2]//0.01*0.01)
+    vec += ((vec1[2] - vec2[2])[0]//0.01*0.01, (vec1[2] - vec2[2])[2]//0.01*0.01)
     return vec# + (state[0], state[1], state[2])
 
 

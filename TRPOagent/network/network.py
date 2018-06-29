@@ -5,6 +5,8 @@ from lasagne.layers import *
 from lasagne.nonlinearities import linear
 from lasagne.init import GlorotNormal
 import math
+import numpy as np
+from collections import OrderedDict
 
 
 class Network:
@@ -18,17 +20,18 @@ class Network:
         nn = InputLayer((None,) + observation_shape, input_var=observations)
         nn1 = DenseLayer(nn, 128, W=GlorotNormal())
         nn2 = DenseLayer(nn1, 64, W=GlorotNormal())
-        m = DenseLayer(nn2, n_actions, nonlinearity=linear, W=GlorotNormal())
-        logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear, W=GlorotNormal())
+        self.m = DenseLayer(nn2, n_actions, nonlinearity=linear)
+        self.logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear)
+        self.model = [self.m, self.logsigma]
 
-        #-----------------------------------------------
-        mean = get_output([m])[0]
-        logstd = get_output([logsigma])[0]
-        self.weights = get_all_params([m, logsigma], trainable=True)
+        # -----------------------------------------------
+        mean = get_output([self.m])[0]
+        logstd = get_output([self.logsigma])[0]
+        self.weights = get_all_params([self.m, self.logsigma], trainable=True)
         self.get_mean = theano.function([observations], mean, allow_input_downcast=True)
         self.get_logstd = theano.function([observations], logstd, allow_input_downcast=True)
 
-        #LOSS
+        # LOSS
         log_p = log_probability(logstd, mean, actions)
         oldlog_p = log_probability(old_logstd, old_m, actions)
         L_surr = -T.sum(T.exp(log_p - oldlog_p) * cummulative_returns)
@@ -38,7 +41,7 @@ class Network:
         self.get_surrogate_gradients = theano.function(all_inputs, get_flat_gradient(L_surr, self.weights),
                                                        allow_input_downcast=True)
 
-        #FISHER VECTOR PRODUCT
+        # FISHER VECTOR PRODUCT
         conjugate_grad_intermediate_vector = T.vector("intermediate grad in conjugate_gradient")
         weight_shapes = [var.get_value().shape for var in self.weights]
         tangents = slice_vector(conjugate_grad_intermediate_vector, weight_shapes)
@@ -49,11 +52,20 @@ class Network:
         self.compute_fisher_vector_product = theano.function([observations, conjugate_grad_intermediate_vector],
                                                              fisher_vector_product, allow_input_downcast=True)
 
-        #Function that exports network weights as a vector
+        # Function that exports network weights as a vector
         flat_weights = T.concatenate([var.ravel() for var in self.weights])
         self.get_flat_weights = theano.function([], flat_weights)
 
-        #Function that imports vector back into network weights
+        # Function that imports vector back into network weights
         flat_weights_placeholder = T.vector("flattened weights")
         assigns = slice_vector(flat_weights_placeholder, weight_shapes)
-        self.load_flat_weights = theano.function([flat_weights_placeholder], updates=dict(zip(self.weights, assigns)))
+        self.load_flat_weights = theano.function([flat_weights_placeholder], updates=OrderedDict(
+            zip(self.weights, assigns)))  # dict(zip(self.weights, assigns)))
+
+    def Savemodel(self):
+        np.savez('model.npz', *get_all_param_values(self.model))
+
+    def Loadmodel(self):
+        with np.load('model.npz') as f:
+            param_values = [f['arr_%d' % i] for i in range(len(f.files))]
+        set_all_param_values(self.model, param_values)

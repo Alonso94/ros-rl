@@ -7,13 +7,13 @@ from network.network import Network
 
 class TRPOAgent:
     n_actions = 4  # type: int
-    observation_shape = (12,)  # type: tuple
+    observation_shape = (17,)  # type: tuple
 
     def __init__(self, env):
         self.env = env
         self.init_network()
         self.n_actions = 4
-        self.observation_shape = (12,)
+        self.observation_shape = (17,)
 
     def act(self, obs, sample=True):
         m = self.net.get_mean([obs])[0]
@@ -114,7 +114,7 @@ class TRPOAgent:
         while done is not True:
             a = self.act(obs, sample=False)[0]
             for i in range(self.n_actions):
-                obs, r, done = env.step([i + 1, a[i]])
+                obs, r, done = env.step([i, a[i]])
                 obs = synthetic_state(env, obs, env.aim)
                 if done:
                     break
@@ -132,7 +132,7 @@ class TRPOAgent:
         while done is not True:
             a = self.act(obs, sample=False)[0]
             for i in range(self.n_actions):
-                obs, r, done = env.step([i + 1, a[i]])
+                obs, r, done = env.step([i, a[i]])
                 obs = synthetic_state(env, obs, env.aim)
                 if done:
                     break
@@ -149,7 +149,7 @@ class TRPOAgent:
         while done is not True:
             a = self.act(obs, sample=False)[0]
             for i in range(self.n_actions):
-                obs, r, done = env.step([i + 1, a[i]])
+                obs, r, done = env.step([i, a[i]])
                 obs = synthetic_state(env, obs, env.aim)
                 if done:
                     break

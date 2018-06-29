@@ -159,8 +159,8 @@ def state1(aim, env):
 
     #state = angle(norm(vec1), vec2) // 0.01 * 0.01
     vec = tuple((vec1[0] - vec2[0])//0.01*0.01)
-    vec += ((vec1[1] - vec2[1])[0]//0.01*0.01, (vec1[1] - vec2[1])[2]//0.01*0.01)
-    vec += ((vec1[2] - vec2[2])[0]//0.01*0.01, (vec1[2] - vec2[2])[2]//0.01*0.01)
+    vec += tuple((vec1[1] - vec2[1])//0.01*0.01)
+    vec += tuple((vec1[2] - vec2[2])//0.01*0.01)
     return vec# + (state[0], state[1], state[2])
 
 
@@ -168,5 +168,6 @@ def synthetic_state(env, s, aim):
     s = tuple([s[i] // 0.01 * 0.01 for i in range(0, 4)])
     gripper = env.link_state('gripper_1_link', '').link_state.pose.position
     r = metric(gripper, env.aim) // 0.01 * 0.01
-    state = (r,) + state1(aim, env) + s
+
+    state = (r,) + state1(aim, env) + s + (aim.x, aim.y, aim.z)
     return state

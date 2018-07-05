@@ -18,7 +18,7 @@ class Network:
         old_logstd = T.matrix(name="action probabilities from previous iteration sigma")
         all_inputs = [observations, actions, cummulative_returns, old_m, old_logstd]
         nn = InputLayer((None,) + observation_shape, input_var=observations)
-        nn1 = DenseLayer(nn, 128, W=GlorotNormal())
+        nn1 = DenseLayer(nn, 256, W=GlorotNormal())
         nn2 = DenseLayer(nn1, 64, W=GlorotNormal())
         self.m = DenseLayer(nn2, n_actions, nonlinearity=linear)
         self.logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear)

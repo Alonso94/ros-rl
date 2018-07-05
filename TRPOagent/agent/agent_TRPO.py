@@ -7,13 +7,14 @@ from network.network import Network
 
 class TRPOAgent:
     n_actions = 4  # type: int
-    observation_shape = (17,)  # type: tuple
+    observation_shape = (8,)  # type: tuple
 
     def __init__(self, env):
         self.env = env
         self.init_network()
         self.n_actions = 4
-        self.observation_shape = (17,)
+        self.observation_shape = (8,)
+
 
     def act(self, obs, sample=True):
         m = self.net.get_mean([obs])[0]
@@ -104,10 +105,11 @@ class TRPOAgent:
                     break
             reward += r
             l += 1
-            print(l, ')', r, [obs[-3], obs[-2], obs[-1]], a)
+            print(l, ')', r, obs, a)
 
     def grasp(self, env):
         obs = synthetic_state(env, env.render(), env.aim)
+        env.gripper.publish(2.0)
         done = False
         reward = 0
         l = 0
@@ -120,7 +122,7 @@ class TRPOAgent:
                     break
             reward += r
             l += 1
-            print(l, ')', r, [obs[-3], obs[-2], obs[-1]], a)
+            print(l, ')', r, obs, a)
         env.gripper.publish(0.0)
 
     def pick(self, env):
@@ -138,7 +140,7 @@ class TRPOAgent:
                     break
             reward += r
             l += 1
-            print(l, ')', r, [obs[-3], obs[-2], obs[-1]], a)
+            print(l, ')', r, [obs[-4], obs[-5], obs[-6]], a)
 
     def putdown(self, env):
         obs = synthetic_state(env, env.render(), env.aim)

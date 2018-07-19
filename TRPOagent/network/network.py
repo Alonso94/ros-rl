@@ -11,25 +11,20 @@ from collections import OrderedDict
 
 class Network:
     def __init__(self, n_actions, observation_shape):
-        observations = T.matrix(name="obs")
+        self.observations = T.matrix(name="obs")
         actions = T.matrix(name="action")
         cummulative_returns = T.vector(name="G = r + gamma*r' + gamma^2*r'' + ...")
         old_m = T.matrix(name="action probabilities from previous iteration m")
         old_logstd = T.matrix(name="action probabilities from previous iteration sigma")
-        all_inputs = [observations, actions, cummulative_returns, old_m, old_logstd]
-        nn = InputLayer((None,) + observation_shape, input_var=observations)
-        nn1 = DenseLayer(nn, 256, W=GlorotNormal())
-        nn2 = DenseLayer(nn1, 64, W=GlorotNormal())
-        self.m = DenseLayer(nn2, n_actions, nonlinearity=linear)
-        self.logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear)
-        self.model = [self.m, self.logsigma]
+        all_inputs = [self.observations, actions, cummulative_returns, old_m, old_logstd]
+        self.init_model(n_actions, observation_shape)
 
         # -----------------------------------------------
         mean = get_output([self.m])[0]
         logstd = get_output([self.logsigma])[0]
         self.weights = get_all_params([self.m, self.logsigma], trainable=True)
-        self.get_mean = theano.function([observations], mean, allow_input_downcast=True)
-        self.get_logstd = theano.function([observations], logstd, allow_input_downcast=True)
+        self.get_mean = theano.function([self.observations], mean, allow_input_downcast=True)
+        self.get_logstd = theano.function([self.observations], logstd, allow_input_downcast=True)
 
         # LOSS
         log_p = log_probability(logstd, mean, actions)
@@ -49,7 +44,7 @@ class Network:
         gradients = T.grad(kl_firstfixed, self.weights)
         gradient_vector_product = [T.sum(g * t) for (g, t) in zip(gradients, tangents)]
         fisher_vector_product = get_flat_gradient(sum(gradient_vector_product), self.weights)
-        self.compute_fisher_vector_product = theano.function([observations, conjugate_grad_intermediate_vector],
+        self.compute_fisher_vector_product = theano.function([self.observations, conjugate_grad_intermediate_vector],
                                                              fisher_vector_product, allow_input_downcast=True)
 
         # Function that exports network weights as a vector
@@ -61,6 +56,15 @@ class Network:
         assigns = slice_vector(flat_weights_placeholder, weight_shapes)
         self.load_flat_weights = theano.function([flat_weights_placeholder], updates=OrderedDict(
             zip(self.weights, assigns)))  # dict(zip(self.weights, assigns)))
+
+    def init_model(self, n_actions, observation_shape):
+        nn = InputLayer((None,) + observation_shape, input_var=self.observations)
+        nn1 = DenseLayer(nn, 256, W=GlorotNormal())
+        nn2 = DenseLayer(nn1, 64, W=GlorotNormal())
+        self.m = DenseLayer(nn2, n_actions, nonlinearity=linear)
+        self.logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear)
+        self.model = [self.m, self.logsigma]
+
 
     def Savemodel(self):
         np.savez('model.npz', *get_all_param_values(self.model))

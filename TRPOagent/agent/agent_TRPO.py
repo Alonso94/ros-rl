@@ -1,8 +1,8 @@
 from itertools import count
 from collections import OrderedDict
-from planner.util import *
+from util import *
 import numpy as np
-from planner.network.network import Network
+from network.network import Network
 import rospy
 
 

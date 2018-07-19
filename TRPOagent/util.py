@@ -75,11 +75,10 @@ def get_cummulative_returns(r, gamma=0.9):
 def rollout(env, agent, max_pathlength=2500, n_timesteps=50000):
     paths = []
     total_timesteps = 0
+    env.state = np.zeros(4)
     while total_timesteps < n_timesteps:
         observations, actions, rewards, action_m, action_logstd = [], [], [], [], []
         observation = env.reset()
-        if total_timesteps % 3 == 0:
-            env.state = np.zeros(4)
         done = False
         for _ in range(max_pathlength):
             action, m, logstd = agent.act(observation)
@@ -93,7 +92,7 @@ def rollout(env, agent, max_pathlength=2500, n_timesteps=50000):
                 reward += r
             rewards.append(reward)
             total_timesteps += 1
-            if done or total_timesteps%max_pathlength == 0: #== n_timesteps:
+            if done or total_timesteps%max_pathlength == 0:
                 path = {"observations": np.array(observations),
                         "m": np.array(action_m),
                         "logstd": np.array(action_logstd),
@@ -138,7 +137,7 @@ def norm(vec_a):
 
 
 def get_pose(joint, env):
-    a = env.link_state(joint, '').link_state.pose.position
+    a = env.link_state(joint, 'base_footprint').link_state.pose.position
     return np.array([a.x, a.y, a.z])
 
 
@@ -149,27 +148,27 @@ def state1(aim, env):
     joint[0] = get_pose('biceps_link', env)
     joint[1] = get_pose('forearm_link', env)
     joint[2] = get_pose('wrist_1_link', env)
-    joint[3] = get_pose('gripper_1_link', env)/2 + get_pose('gripper_2_link', env)/2
+    joint[3] = get_pose('gripper_1_link', env)*0.5 + get_pose('gripper_2_link', env)*0.5
 
-    joint[3] += (joint[3] - joint[2])*(0.025 / 0.11450014)
+    joint[3] += (joint[3] - joint[2])*(0.017 / 0.11450014)
     # vectors
-    vec1 = np.zeros((3, 3))
-    vec2 = np.zeros((3, 3))
+    vec1 = np.zeros(3)
+    vec2 = np.zeros(3)
 
     for i in range(3):
-        vec1[i] = joint[3] - joint[i]
-        vec2[i] = aim1 - joint[i]
+        vec1 = joint[3] - joint[0]
+        vec2 = aim1 - joint[0]
 
     #state = angle(norm(vec1), vec2) // 0.01 * 0.01
-    vec = tuple((vec1[0] - vec2[0])//0.01*0.01)
-    #vec += tuple((vec1[1] - vec2[1])//0.01*0.01)
-    #vec += tuple((vec1[2] - vec2[2])//0.01*0.01)
+    vec = tuple((vec1 - vec2)//0.01*0.01)
     return vec# + (state[0], state[1], state[2])
+
 
 
 def synthetic_state(env, s, aim):
     s = tuple([s[i] // 0.01 * 0.01 for i in range(0, 4)])
-    gripper = env.link_state('gripper_1_link', '').link_state.pose.position
+    gripper = env.link_state('gripper_1_link', 'base_footprint').link_state.pose.position
     r = metric(gripper, env.aim) // 0.01 * 0.01
-    state = (r,) + state1(aim, env) + s
+    rel_aim, _ = env.get_state()
+    state = (r,) + state1(rel_aim, env) + s
     return state

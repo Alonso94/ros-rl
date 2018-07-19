@@ -1,8 +1,9 @@
 from itertools import count
 from collections import OrderedDict
-from util import *
+from planner.util import *
 import numpy as np
-from network.network import Network
+from planner.network.network import Network
+import rospy
 
 
 class TRPOAgent:
@@ -14,7 +15,6 @@ class TRPOAgent:
         self.init_network()
         self.n_actions = 4
         self.observation_shape = (8,)
-
 
     def act(self, obs, sample=True):
         m = self.net.get_mean([obs])[0]
@@ -69,6 +69,7 @@ class TRPOAgent:
         # Report current progress
         L_surr, kl, entropy = self.net.compute_losses(*inputs_batch)
         episode_rewards = np.array([path["rewards"].sum() for path in paths])
+
         stats = OrderedDict()
         numeptotal += len(episode_rewards)
         stats["Total number of episodes"] = numeptotal
@@ -108,8 +109,31 @@ class TRPOAgent:
             print(l, ')', r, obs, a)
 
     def grasp(self, env):
-        obs = synthetic_state(env, env.render(), env.aim)
-        env.gripper.publish(2.0)
+        if env:
+            print(True)
+        obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
+        done = False
+        reward = 0
+        l = 0
+        while done is not True:
+            env.gripper.publish(2.0)
+            a = self.act(obs, sample=False)[0]
+            for i in range(self.n_actions):
+                obs, r, done = env.step([i, a[i]])
+                obs = synthetic_state(env, obs, env.aim)
+                if done:
+                    break
+            reward += r
+            l += 1
+            print(l, ')', r, obs, a)
+        env.gripper.publish(0.0)
+        rospy.sleep(10.0)
+
+    def pick(self, env):
+        env.gripper.publish(0.0)
+        env.h += 0.2
+        obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
+
         done = False
         reward = 0
         l = 0
@@ -123,28 +147,10 @@ class TRPOAgent:
             reward += r
             l += 1
             print(l, ')', r, obs, a)
-        env.gripper.publish(0.0)
-
-    def pick(self, env):
-        obs = synthetic_state(env, env.render(), env.aim)
-        env.aim.z += 0.1
-        done = False
-        reward = 0
-        l = 0
-        while done is not True:
-            a = self.act(obs, sample=False)[0]
-            for i in range(self.n_actions):
-                obs, r, done = env.step([i, a[i]])
-                obs = synthetic_state(env, obs, env.aim)
-                if done:
-                    break
-            reward += r
-            l += 1
-            print(l, ')', r, [obs[-4], obs[-5], obs[-6]], a)
 
     def putdown(self, env):
-        obs = synthetic_state(env, env.render(), env.aim)
-        env.aim.z += -0.1
+        obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
+        env.h += -0.1
         done = False
         reward = 0
         l = 0
@@ -157,4 +163,4 @@ class TRPOAgent:
                     break
             reward += r
             l += 1
-            print(l, ')', r, [obs[-3], obs[-2], obs[-1]], a)
+            print(l, ')', r, obs, a)

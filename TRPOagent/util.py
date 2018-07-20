@@ -79,6 +79,8 @@ def rollout(env, agent, max_pathlength=2500, n_timesteps=50000):
     while total_timesteps < n_timesteps:
         observations, actions, rewards, action_m, action_logstd = [], [], [], [], []
         observation = env.reset()
+        if total_timesteps % 4 == 0:
+            env.state = np.zeros(4)
         done = False
         for _ in range(max_pathlength):
             action, m, logstd = agent.act(observation)

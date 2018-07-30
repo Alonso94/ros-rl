@@ -1,14 +1,11 @@
-from itertools import count
-from collections import OrderedDict
 from util import *
 import numpy as np
-from network.network import Network
+from network.network_synth import NetworkSynth
 import rospy
 from agent.agent_TRPO import TRPOAgent
 
 
 class AgentSynth(TRPOAgent):
-
     def act(self, obs, sample=True):
         m = self.net.get_mean([obs])[0]
         log_std = self.net.get_logstd([obs])[0]
@@ -20,7 +17,7 @@ class AgentSynth(TRPOAgent):
         return action, m, log_std
 
     def init_network(self):
-        self.net = Network(self.n_actions, self.observation_shape)
+        self.net = NetworkSynth(self.n_actions, self.observation_shape)
 
     def rollout(self, max_pathlength=2500, n_timesteps=50000):
         paths = []

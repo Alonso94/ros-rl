@@ -2,14 +2,12 @@ from util import *
 import theano
 import theano.tensor as T
 from lasagne.layers import *
-from lasagne.nonlinearities import linear
-from lasagne.init import GlorotNormal
 import math
 import numpy as np
 from collections import OrderedDict
 
 
-class Network:
+class Network(object):
     def __init__(self, n_actions, observation_shape):
         self.observations = T.matrix(name="obs")
         actions = T.matrix(name="action")
@@ -58,13 +56,7 @@ class Network:
             zip(self.weights, assigns)))  # dict(zip(self.weights, assigns)))
 
     def init_model(self, n_actions, observation_shape):
-        nn = InputLayer((None,) + observation_shape, input_var=self.observations)
-        nn1 = DenseLayer(nn, 256, W=GlorotNormal())
-        nn2 = DenseLayer(nn1, 64, W=GlorotNormal())
-        self.m = DenseLayer(nn2, n_actions, nonlinearity=linear)
-        self.logsigma = DenseLayer(nn2, n_actions, nonlinearity=linear)
-        self.model = [self.m, self.logsigma]
-
+        raise NotImplementedError
 
     def Savemodel(self):
         np.savez('model.npz', *get_all_param_values(self.model))

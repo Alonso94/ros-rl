@@ -2,7 +2,6 @@ from itertools import count
 from collections import OrderedDict
 from util import *
 import numpy as np
-import rospy
 
 
 class TRPOAgent(object):

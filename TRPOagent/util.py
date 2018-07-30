@@ -72,41 +72,6 @@ def get_cummulative_returns(r, gamma=0.9):
     return scipy.signal.lfilter([1], [1, -gamma], r[::-1], axis=0)[::-1]
 
 
-def rollout(env, agent, max_pathlength=2500, n_timesteps=50000):
-    paths = []
-    total_timesteps = 0
-    env.state = np.zeros(4)
-    while total_timesteps < n_timesteps:
-        observations, actions, rewards, action_m, action_logstd = [], [], [], [], []
-        observation = env.reset()
-        if total_timesteps % 4 == 0:
-            env.state = np.zeros(4)
-        done = False
-        for _ in range(max_pathlength):
-            action, m, logstd = agent.act(observation)
-            observations.append(observation)
-            actions.append(action)
-            action_m.append(m)
-            action_logstd.append(logstd)
-            reward = 0
-            for i in range(agent.n_actions):
-                observation, r, done = env.step([i, action[i]])
-                reward += r
-            rewards.append(reward)
-            total_timesteps += 1
-            if done or total_timesteps%max_pathlength == 0:
-                path = {"observations": np.array(observations),
-                        "m": np.array(action_m),
-                        "logstd": np.array(action_logstd),
-                        "actions": np.array(actions),
-                        "rewards": np.array(rewards),
-                        "cumulative_returns": get_cummulative_returns(rewards),
-                        }
-                paths.append(path)
-                break
-    return paths
-
-
 def log_probability(logstd, mean, actions):
     return - T.sum(logstd, -1) - 0.5 * T.sum(T.square((actions - mean) / T.exp(logstd)), -1) - 0.5 * np.log(2 * np.pi)
 

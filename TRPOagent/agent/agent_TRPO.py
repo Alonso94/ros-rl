@@ -2,37 +2,27 @@ from itertools import count
 from collections import OrderedDict
 from util import *
 import numpy as np
-from network.network import Network
 import rospy
 
 
-class TRPOAgent:
-    n_actions = 4  # type: int
-    observation_shape = (8,)  # type: tuple
+class TRPOAgent(object):
 
     def __init__(self, env):
         self.env = env
+        self.n_actions = self.env.act_shape
+        self.observation_shape = self.env.obs_shape
         self.init_network()
-        self.n_actions = 4
-        self.observation_shape = (8,)
 
     def act(self, obs, sample=True):
-        m = self.net.get_mean([obs])[0]
-        log_std = self.net.get_logstd([obs])[0]
-        rnd = np.random.normal(size=self.n_actions)
-        if sample:
-            action = np.exp(log_std) * rnd + m
-        else:
-            action = m
-        return action, m, log_std
+        raise NotImplementedError
 
     def init_network(self):
-        self.net = Network(self.n_actions, self.observation_shape)
+        raise NotImplementedError
 
 
     def train_path(self, max_kl=0.01, cg_damping=0.1, numeptotal=0, max_pathlength=500, n_timesteps=30000):
         print("Rollout")
-        paths = rollout(self.env, self, max_pathlength, n_timesteps)
+        paths = self.rollout(max_pathlength, n_timesteps)
         print("Made rollout")
 
         # Updating policy.
@@ -93,6 +83,9 @@ class TRPOAgent:
             i += 1
         return rewards, i
 
+    def rollout(self, max_pathlength=2500, n_timesteps=50000):
+        raise NotImplementedError
+
     def play(self, env):
         obs = env.reset()
         done = False
@@ -109,58 +102,10 @@ class TRPOAgent:
             print(l, ')', r, obs, a)
 
     def grasp(self, env):
-        if env:
-            print(True)
-        obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
-        done = False
-        reward = 0
-        l = 0
-        while done is not True:
-            env.gripper.publish(2.0)
-            a = self.act(obs, sample=False)[0]
-            for i in range(self.n_actions):
-                obs, r, done = env.step([i, a[i]])
-                obs = synthetic_state(env, obs, env.aim)
-                if done:
-                    break
-            reward += r
-            l += 1
-            print(l, ')', r, obs, a)
-        env.gripper.publish(0.0)
-        rospy.sleep(10.0)
+        raise NotImplementedError
 
     def pick(self, env):
-        env.gripper.publish(0.0)
-        env.h += 0.2
-        obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
-
-        done = False
-        reward = 0
-        l = 0
-        while done is not True:
-            a = self.act(obs, sample=False)[0]
-            for i in range(self.n_actions):
-                obs, r, done = env.step([i, a[i]])
-                obs = synthetic_state(env, obs, env.aim)
-                if done:
-                    break
-            reward += r
-            l += 1
-            print(l, ')', r, obs, a)
+        raise NotImplementedError
 
     def putdown(self, env):
-        obs = synthetic_state(env, env.render(mode = 'human'), env.aim)
-        env.h += -0.1
-        done = False
-        reward = 0
-        l = 0
-        while done is not True:
-            a = self.act(obs, sample=False)[0]
-            for i in range(self.n_actions):
-                obs, r, done = env.step([i, a[i]])
-                obs = synthetic_state(env, obs, env.aim)
-                if done:
-                    break
-            reward += r
-            l += 1
-            print(l, ')', r, obs, a)
+        raise NotImplementedError

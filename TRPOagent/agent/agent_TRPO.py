@@ -2,9 +2,10 @@ from itertools import count
 from collections import OrderedDict
 from util import *
 import numpy as np
+from gazeboplanner.gadapter.gazebo_tools import TurtleBot
 
 
-class TRPOAgent(object):
+class TRPOAgent(TurtleBot):
 
     def __init__(self, env):
         self.env = env
@@ -103,8 +104,8 @@ class TRPOAgent(object):
     def grasp(self, env):
         raise NotImplementedError
 
-    def pick(self, env):
+    def pickup(self, env, act_form, prev_direct, table_radius):
         raise NotImplementedError
 
-    def putdown(self, env):
+    def putdown(self, env, act_form, prev_direct, table_radius):
         raise NotImplementedError

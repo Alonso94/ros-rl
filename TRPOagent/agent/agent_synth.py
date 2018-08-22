@@ -74,7 +74,14 @@ class AgentSynth(TRPOAgent):
         env.gripper.publish(0.0)
         rospy.sleep(10.0)
 
-    def pick(self, env):
+    def pickup(self, env, act_form, prev_direct, table_radius):
+        crumb_pose = self.subscribe_pose('crumb')
+        unit_box_3_pose = self.subscribe_pose('unit_box_3')
+        resp = self.move(unit_box_3_pose.pose.position.x - (table_radius / 2),
+                         unit_box_3_pose.pose.position.y - (table_radius / 2), prev_direct, crumb_pose.pose.position.x,
+                         crumb_pose.pose.position.y)
+
+        self.grasp(env)
         env.gripper.publish(0.0)
         env.h += 0.2
         obs = synthetic_state(env, env.render(mode='human'), env.aim)
@@ -93,7 +100,12 @@ class AgentSynth(TRPOAgent):
             l += 1
             print(l, ')', r, obs, a)
 
-    def putdown(self, env):
+    def putdown(self, env, act_form, prev_direct, table_radius):
+        crumb_pose = self.subscribe_pose('crumb')
+        unit_box_1_pose = self.subscribe_pose('unit_box_1')
+        resp = self.move(unit_box_1_pose.pose.position.x, unit_box_1_pose.pose.position.y, prev_direct,
+                         crumb_pose.pose.position.x, crumb_pose.pose.position.y)
+
         obs = synthetic_state(env, env.render(mode='human'), env.aim)
         env.h += -0.1
         done = False

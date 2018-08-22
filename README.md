@@ -1,6 +1,6 @@
 # ros-rl
 
-#Requirements
+# Requirements
 
 1. ros-kinetic, gazebo7
 
@@ -33,6 +33,6 @@ If you have error: ‘setupClient’ is not a member of ‘gazebo’, change fil
 6. There are some worlds in crumb_gazebo that uses camera. You should replace path in this file.world with path, in which you want to save the images.
 
 
-#TRPOAgent
+# TRPOAgent
 
 TRPOAgent is a class based on Turtlebot class from gazebo-planner (https://github.com/cog-isa/gazebo-planner). Now the only workable agent is AgentSynth. Work with AgentImg is in progress.

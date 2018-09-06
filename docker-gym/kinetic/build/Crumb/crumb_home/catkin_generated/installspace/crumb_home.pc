@@ -1,0 +1,8 @@
+prefix=/RLProject/kinetic/install
+
+Name: crumb_home
+Description: Description of crumb_home
+Version: 0.0.0
+Cflags: 
+Libs: -L/RLProject/kinetic/install/lib 
+Requires: 

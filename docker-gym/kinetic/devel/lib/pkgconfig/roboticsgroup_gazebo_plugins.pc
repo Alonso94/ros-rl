@@ -1,0 +1,8 @@
+prefix=/RLProject/kinetic/devel
+
+Name: roboticsgroup_gazebo_plugins
+Description: Description of roboticsgroup_gazebo_plugins
+Version: 0.0.1
+Cflags: 
+Libs: -L/RLProject/kinetic/devel/lib 
+Requires: roscpp gazebo_ros control_toolbox

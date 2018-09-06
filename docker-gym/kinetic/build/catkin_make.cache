@@ -1,0 +1,2 @@
+Crumb/crumb:Crumb/crumb_control:Crumb/crumb_description:Crumb/crumb_gazebo:Crumb/crumb_home:Crumb/crumb_listener:Crumb/roboticsgroup_gazebo_plugins:arbotix_ros/arbotix:arbotix_ros/arbotix_controllers:arbotix_ros/arbotix_firmware:arbotix_ros/arbotix_msgs:arbotix_ros/arbotix_python:arbotix_ros/arbotix_sensors
+-DCATKIN_DEVEL_PREFIX=/RLProject/kinetic/devel -DCMAKE_INSTALL_PREFIX=/RLProject/kinetic/install -G Unix Makefiles

@@ -1,0 +1,8 @@
+prefix=/RLProject/kinetic/devel
+
+Name: crumb_description
+Description: Description of crumb_description
+Version: 0.0.0
+Cflags: 
+Libs: -L/RLProject/kinetic/devel/lib 
+Requires: 

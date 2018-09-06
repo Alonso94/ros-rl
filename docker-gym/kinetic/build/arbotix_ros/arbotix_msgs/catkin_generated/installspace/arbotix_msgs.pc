@@ -1,0 +1,8 @@
+prefix=/RLProject/kinetic/install
+
+Name: arbotix_msgs
+Description: Description of arbotix_msgs
+Version: 0.10.0
+Cflags: -I/RLProject/kinetic/install/include
+Libs: -L/RLProject/kinetic/install/lib 
+Requires: message_runtime std_msgs

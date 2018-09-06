@@ -1,0 +1,8 @@
+prefix=/RLProject/kinetic/devel
+
+Name: arbotix_sensors
+Description: Description of arbotix_sensors
+Version: 0.10.0
+Cflags: 
+Libs: -L/RLProject/kinetic/devel/lib 
+Requires: 

@@ -1,0 +1,8 @@
+prefix=/RLProject/kinetic/install
+
+Name: crumb_control
+Description: Description of crumb_control
+Version: 0.0.0
+Cflags: 
+Libs: -L/RLProject/kinetic/install/lib 
+Requires: 

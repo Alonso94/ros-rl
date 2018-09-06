@@ -1,8 +1,0 @@
-- git:
-    local-name: arbotix_ros
-    uri: https://github.com/vanadiumlabs/arbotix_ros
-    version: kinetic-devel
-- git:
-    local-name: turtlebot_arm
-    uri: https://github.com/turtlebot/turtlebot_arm.git
-    version: kinetic-devel

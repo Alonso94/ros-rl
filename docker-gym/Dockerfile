@@ -1,7 +1,7 @@
 FROM ros:kinetic
 
 #Turtlebot
-RUN . /opt/ros/kinetic/setup.sh && apt-get update && apt-get install -y ros-kinetic-turtlebot #ros-kinetic-turtlebot-apps ros-kinetic-turtlebot-interactions ros-kinetic-turtlebot-simulator ros-kinetic-kobuki-ftdi ros-kinetic-ar-track-alvar-msgs
+RUN cp /opt/ros/kinetic/setup.sh /root/ && . /root/setup.sh && apt-get update && apt-get install -y ros-kinetic-turtlebot #ros-kinetic-turtlebot-apps ros-kinetic-turtlebot-interactions ros-kinetic-turtlebot-simulator ros-kinetic-kobuki-ftdi ros-kinetic-ar-track-alvar-msgs
 
 #Utils
 RUN apt-get update && apt-get install -y vim net-tools iputils-ping
